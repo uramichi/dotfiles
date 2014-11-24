@@ -1,0 +1,28 @@
+Config { font = "xft:Migu 1M:size=12:antialias=true"
+       , borderColor = "black"
+       , border = TopB
+       , bgColor = "black"
+       , fgColor = "grey"
+       , position = Top
+       , lowerOnStart = True
+       , pickBroadest = False
+       , persistent = False
+       , hideOnStart = False
+       , commands = [ Run Cpu ["-L","3","-H","50","--normal","green","--high","red"] 10
+                    , Run Memory ["-t","Mem: <usedratio>%"] 10
+                    , Run Com "uname" ["-n","-r"] "" 36000
+                    , Run Date "%m/%d/%Y (%a) %H:%M %Z" "date" 10
+                    , Run StdinReader
+                    , Run BatteryP ["BAT0"]
+                                   [ "-L", "20", "-H", "80"
+                                   , "-l", "red", "-h", "green"
+                                   , "--", "-O", "Chrg: <left>", "-o", " Batt: <left>"
+                                   ]
+                                   10
+                    ]
+       , sepChar = "%"
+       , alignSep = "}{"
+       , template = "%StdinReader% }{%battery% %cpu% %memory% <fc=#ee9a00>%date%</fc> <fc=#32cd32>%uname%</fc>"
+       }
+
+-- vim:ft=haskell

@@ -1,0 +1,8 @@
+[user]
+	name = uramichi
+	email = yd.bh250t@gmail.com
+[core]
+	excludesfile = $HOME/.gitignore_global
+
+# vim:ft=gitconfig
+

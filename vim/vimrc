@@ -1,0 +1,156 @@
+set nocompatible "vi非互換モード
+filetype off
+
+if has('vim_starting')
+	set runtimepath+=~/.vim/bundle/neobundle.vim
+	call neobundle#begin(expand('~/.vim/bundle/'))
+endif
+
+NeoBundle 'Shougo/vimproc', {
+\   'build': {
+\     'windows': 'make -f make_mingw32.mak',
+\     'cygwin' : 'make -f make_cygwin.mak',
+\     'mac'    : 'make -f make_mac.mak',
+\     'unix'   : 'make -f make_unix.mak',
+\   },
+\ }
+NeoBundle 'Shougo/neocomplcache'
+NeoBundle 'Shougo/neobundle.vim'
+NeoBundle 'Align'
+NeoBundle 'Syntastic'
+NeoBundle 'sudo.vim'
+NeoBundle 'mattn/webapi-vim'
+NeoBundle 'Rip-Rip/clang_complete'
+NeoBundle 'fuenor/JpFormat.vim'
+NeoBundle 'mitsuhiko/vim-jinja'
+NeoBundle 'tpope/vim-speeddating'
+NeoBundle 'jceb/vim-orgmode'
+NeoBundle 'http://fedorapeople.org/cgit/wwoods/public_git/vim-scripts.git'
+"NeoBundleLazy 'nosami/Omnisharp', {
+"\   'autoload': {'filetypes': ['cs']},
+"\   'build': {
+"\     'mac' : 'xbuild server/OmniSharp.sln',
+"\     'unix': 'xbuild server/OmniSharp.sln',
+"\   }
+"\ }
+
+if has('vim_starting')
+	call neobundle#end()
+endif
+
+"#######################
+" プログラミングヘルプ系
+"#######################
+filetype on
+filetype plugin on
+filetype indent on
+syntax on       "カラー表示
+set smartindent "スマートインデント
+"ネオコン関連
+let g:neocomplcache_enable_at_startup=1   "いでよネオコン!
+let g:neocomplcache_enable_auto_select=1  "候補にカーソルを勝手に合わせる
+"Tabで決定(Visual Studioライクに)
+inoremap <expr><TAB>  pumvisible() ? "\<CR>" : "\<TAB>"
+"Syntastic
+let g:syntastic_enable_signs=1
+let g:syntastic_auto_loc_list=2
+let g:syntastic_cpp_compiler = 'clang++'
+let g:syntastic_cpp_compiler_options = ' -std=c++11 '
+"OmniSharp
+autocmd FileType cs nnoremap <F5> :wa!<cr>:OmniSharpBuildAsync<cr>
+autocmd FileType cs nnoremap gd :OmniSharpGotoDefinition<cr>
+autocmd BufEnter,TextChanged,InsertLeave *.cs SyntasticCheck
+autocmd CursorHold *.cs call OmniSharp#TypeLookupWithoutDocumentation()
+autocmd BufWritePost *.cs call OmniSharp#AddToProject()
+autocmd FileType cs setlocal omnifunc=OmniSharp#Complete
+if $OMNISHARP_HOST != ""
+	let g:OmniSharp_host = $OMNISHARP_HOST
+else
+	let g:OmniSharp_host = "http://localhost:2000"
+endif
+let g:OmniSharp_timeout = 1
+let g:syntastic_cs_checkers = ['syntax', 'issues']
+
+"#######################
+" 表示系
+"#######################
+set showmode        "モード表示
+set title           "編集中のファイル名を表示
+set ruler           "ルーラーの表示
+set showcmd         "入力中のコマンドをステータスに表示する
+set tabstop=4       "タブ幅
+set softtabstop=4   "タブ幅
+set shiftwidth=4    "タブ幅
+set whichwrap=b,s,h,l,<,>,[,]  "カーソルが改行越えられるようにする呪文
+set backspace=start,eol,indent "バックスペースが改行消すようになる呪文
+set list            "不可視文字の可視化
+set listchars=tab:>\ ,extends:<
+set fileencodings=utf-8,iso-2022-jp,sjis,cp932,euc-jp,utf-16 "ホントはUTF-8以外に興味なんか全然無いんだからね!
+set laststatus=2    "ステータスラインの2行表示
+colorscheme koehler "カラースキーム指定
+"全角スペースと行末空白をエラー表示
+autocmd VimEnter,WinEnter,BufRead * call matchadd("Error", '　')
+autocmd VimEnter,WinEnter,BufRead * call matchadd("Error", ' ')
+autocmd VimEnter,WinEnter,BufRead * call matchadd("Error", '\(　\|\s\)\+$')
+
+"#######################
+" 検索系
+"#######################
+set ignorecase "検索文字列が小文字の場合は大文字小文字を区別なく検索する
+set smartcase  "検索文字列に大文字が含まれている場合は区別して検索する
+set wrapscan   "検索時に最後まで行ったら最初に戻る
+set incsearch  "検索文字列入力時に順次対象文字列にヒットさせる
+set hlsearch   "検索結果文字列のハイライト表示
+"<C-l>で画面再描画とともに検索ハイライトを解除
+nnoremap <silent> <C-l> :noh<CR><C-l>
+
+"#######################
+" キーマップ系
+"#######################
+"hjklをもれなく1つ右にずらす
+"g{k,l}と{k,l}を入れ替える
+noremap  <silent>;  l
+noremap  <silent>l  gk
+noremap  <silent>gl k
+noremap  <silent>k  gj
+noremap  <silent>gk j
+noremap  <silent>j  h
+noremap  <silent>h  ;
+"分割された画面間をアローキーで左右フォーカス切り替え、上下タブ切り替え
+nnoremap <silent><Left>      <C-w>h
+nnoremap <silent><Down>      gt
+nnoremap <silent><Up>        gT
+nnoremap <silent><Right>     <C-w>l
+"F7を押した後アローキーで画面を移動
+nnoremap <silent><F7><Left>  <C-w>H
+nnoremap <silent><F7><Down>  <C-w>J
+nnoremap <silent><F7><Up>    <C-w>K
+nnoremap <silent><F7><Right> <C-w>L
+"Em*csライクなキーバインドを一部再現
+inoremap <silent><C-h>       <BS>
+"その他
+inoremap <silent><C-d>       <Esc>
+vnoremap <silent><C-d>       <Esc>
+snoremap <silent><C-d>       <Esc>
+
+"#######################
+" コマンド系
+"#######################
+set wildmenu
+
+"pbcopy/pbpaste
+command -range=% Pbcopy  <line1>,<line2>w ! pbcopy
+command          Pbpaste r! pbpaste
+command -range=% Tweet   w ! twshell -e login -e update_stdin
+command -range=% Sbcl    w ! (rlwrap sbcl --eval "(progn $(cat))" < /dev/tty)
+
+"#######################
+" その他
+"#######################
+"ファイルを開いた際に、前回終了時の行で起動
+autocmd BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$") | exe "normal g`\"" | endif
+"Align.vimマルチバイトフラグ
+let g:Align_xstrlen=3
+" 端末Vimでもマウスが使えるヤバみ
+set mouse=a
+set ttymouse=xterm2

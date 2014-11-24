@@ -1,0 +1,20 @@
+{
+	"segments": {
+		"right": [
+			{
+				"function": "powerline.segments.common.battery"
+			},
+			{
+				"function": "powerline.segments.common.time.date",
+				"name": "time",
+				"args": {
+					"format": "%Y-%m-%d (%a) %H:%M",
+					"istime": true
+				}
+			},
+			{
+				"function": "powerline.segments.common.net.hostname"
+			}
+		]
+	}
+}
